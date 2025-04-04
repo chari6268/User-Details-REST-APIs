@@ -6,6 +6,7 @@ const http = require('http');
 const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs-extra');
+const axios = require('axios');
 
 
 const app = express();
@@ -31,7 +32,26 @@ app.use((req, res, next) => {
     res.json({ message: 'Welcome to Screenova!'});
   });
 
-
+  app.get('/student-details', async (req, res) => {
+    try {
+        const { regno } = req.body;
+        if (!regno) {
+            return res.status(400).json({ error: 'Registration number is required' });
+        }
+        const response = await axios.get('http://160.187.169.12/jspapi/personal_details.jsp?regno=' + regno, {
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+        });
+        if (response.status !== 200) {
+            return res.status(response.status).json({ error: 'Failed to fetch data from external API' });
+        }
+        res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch data' });
+    }
+  });
 
 
 
