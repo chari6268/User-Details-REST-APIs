@@ -7,12 +7,13 @@ const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs-extra');
 const axios = require('axios');
+require('dotenv').config();
 
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-const PORT = process.env.PORT || 6268;
+const PORT = process.env.PORT;
 
 // Middleware
 app.use(compression()); // Compress responses
@@ -38,12 +39,18 @@ app.use((req, res, next) => {
         if (!regno) {
             return res.status(400).json({ error: 'Registration number is required' });
         }
-        const response = await axios.get('http://160.187.169.12/jspapi/personal_details.jsp?regno=' + regno, {
-            headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-            }
-        });
+        // get the data from the .env file
+        const apiUrl = process.env.PERSONAL_DETAILS;
+        if (!apiUrl) {
+            return res.status(500).json({ error: 'API URL not configured' });
+        }
+        const fullApiUrl = `${apiUrl}?regno=${regno}`;
+        const response = await axios.get(fullApiUrl, {
+          headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+          }
+      });
         if (response.status !== 200) {
             return res.status(response.status).json({ error: 'Failed to fetch data from external API' });
         }
