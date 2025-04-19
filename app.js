@@ -8,7 +8,8 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs-extra');
 const axios = require('axios');
 require('dotenv').config();
-
+const { FirebaseAuth } = require('./Firebase/auth');
+const firebaseAuth = new FirebaseAuth();
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +32,27 @@ app.use((req, res, next) => {
   // Sample REST endpoints
   app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Screenova!'});
+  });
+
+  app.get('/health', (req, res) => {
+    res.json({ status: 'OK' });
+  });
+
+  app.post('/create-user', async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+        const user = { phoneNumber , token: uuidv4() , otp: await firebaseAuth.generateOtp() };
+        const userResponse = await firebaseAuth.createUserWithPhone('users', user);
+        if (userResponse.message) {
+          return res.status(400).json({ error: userResponse.message });
+        }
+        res.json({ message: 'User registered successfully', userResponse });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create user!' });
+    }
   });
 
   app.get('/student-details', async (req, res) => {
