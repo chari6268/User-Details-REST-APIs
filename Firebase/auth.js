@@ -1,6 +1,14 @@
 const jwt = require('jsonwebtoken');
 const {fetchData, writeData, updateData, deleteData ,fetchDataById} = require('./firebaseDB');
+const { app, auth } = require('./config');
+const { getAuth, signInWithPhoneNumber } = require('firebase/auth');
+const admin = require('firebase-admin');
 
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault(), // Use your service account key
+    });
+}
 class FirebaseAuth {
     async createUserWithPhone(path, user) {
         try {
@@ -50,6 +58,26 @@ class FirebaseAuth {
     async generateOtp() {
         const otp = Math.floor(100000 + Math.random() * 900000);
         return otp;
+    }
+    
+    async sendOtp(phoneNumber) {
+        // Ensure the phone number includes the country code
+        if (!phoneNumber.startsWith('+91')) {
+            phoneNumber = '+91' + phoneNumber;
+        }
+        try {
+            // Generate a custom token for the phone number
+            const customToken = await admin.auth().createCustomToken(phoneNumber);
+    
+            // Simulate sending OTP (you can integrate with an SMS provider here)
+            console.log(`OTP sent to ${phoneNumber}: [Simulated OTP]`);
+    
+            // Return the custom token (or success message)
+            return { message: 'OTP sent successfully', customToken };
+        } catch (error) {
+            console.error('Error sending OTP:', error);
+            throw new Error('Failed to send OTP');
+        }
     }
 }
 
