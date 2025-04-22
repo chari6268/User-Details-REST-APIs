@@ -90,7 +90,7 @@ app.use((req, res, next) => {
     }
   });
 
-  app.put('/verify-otp', async (req, res) => {
+  app.post('/verify-otp', async (req, res) => {
     try {
         const { phoneNumber, otp} = req.body;
         if (!phoneNumber || !otp) {
