@@ -84,15 +84,15 @@ app.use((req, res, next) => {
         if (userResponse.message) {
           return res.status(400).json({ error: userResponse.message });
         }
-        res.json({ message: 'OTP sent successfully' });
+        res.json({ message: 'OTP sent successfully', response:true });
     } catch (error) {
         res.status(500).json({ error: 'Failed to send OTP!' });
     }
   });
 
-  app.post('/verify-otp', async (req, res) => {
+  app.put('/verify-otp', async (req, res) => {
     try {
-        const { phoneNumber, otp, token} = req.body;
+        const { phoneNumber, otp} = req.body;
         if (!phoneNumber || !otp) {
             return res.status(400).json({ error: 'Phone number and OTP are required' });
         }
@@ -100,12 +100,7 @@ app.use((req, res, next) => {
         if (!user) {
             return res.status(401).json({ error: 'Invalid OTP' });
         }
-        user.token = token;
-        const userResponse = await firebaseAuth.createUserWithPhone('users', user);
-        if (userResponse.message) {
-          return res.status(400).json({ error: userResponse.message });
-        }
-        res.json({ message: 'OTP verified successfully'});
+        res.json({user});
     } catch (error) {
         res.status(500).json({ error: 'Failed to verify OTP!' });
     }

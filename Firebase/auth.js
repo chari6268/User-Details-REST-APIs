@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const {fetchData, writeData, updateData, deleteData ,fetchDataById} = require('./firebaseDB');
+const { response } = require('express');
 
 class FirebaseAuth {
     async createUserWithPhone(path, user) {
@@ -27,7 +28,7 @@ class FirebaseAuth {
             if (usersArray.find((u) => u.phoneNumber === phoneNumber)) {
                 const userDetails = usersArray.find((u) => u.phoneNumber === phoneNumber);
                 if (userDetails.otp === otp) {
-                    return { message: 'OTP verified successfully', user: userDetails };
+                    return { message: 'OTP verified successfully', response: true };
                 } else {
                     return { message: 'Invalid OTP' };
                 }
@@ -55,6 +56,24 @@ class FirebaseAuth {
     async generateOtp() {
         const otp = Math.floor(100000 + Math.random() * 900000);
         return otp;
+    }
+    
+    // update the user details
+    async updateUser(path, phoneNumber, user) {
+        try {
+            const users = await fetchData(path);
+            const usersArray = Array.isArray(users) ?
+                users.filter(Boolean) :
+                Object.values(users || {}).filter(Boolean);
+            if (usersArray.find((u) => u.phoneNumber === phoneNumber)) {
+                await updateData(path, user, phoneNumber);
+                return { message: 'User updated successfully' };
+            } else {
+                return { message: 'User not found' };
+            }
+        } catch (error) {
+            return { message: 'Failed to update user' };
+        }
     }
 }
 
