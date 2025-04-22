@@ -37,41 +37,15 @@ app.use((req, res, next) => {
   app.get('/health', (req, res) => {
     res.json({ status: 'OK' });
   });
-
-  app.post('/sent-otp', async (req, res) => {
-    try {
-        let { phoneNumber } = req.body;
-
-        // Validate phoneNumber
-        if (!phoneNumber) {
-            return res.status(400).json({ error: 'Phone number is required' });
-        }
-
-        // Ensure phoneNumber is a string
-        phoneNumber = String(phoneNumber);
-
-        const otpResponse = await firebaseAuth.sendOtp(phoneNumber);
-
-        if (!otpResponse || !otpResponse.customToken) {
-            return res.status(500).json({ error: 'Failed to generate OTP' });
-        }
-
-        res.json({ message: 'OTP sent successfully', otpResponse });
-    } catch (error) {
-        console.error('Error in /sent-otp:', error);
-        res.status(500).json({ error: error.message || 'Failed to send OTP!' });
-    }
-});
-
   app.post('/create-user', async (req, res) => {
     try {
         const { phoneNumber } = req.body;
         if (!phoneNumber) {
             return res.status(400).json({ error: 'Phone number is required' });
         }
-        const otp = await firebaseAuth.sendOtp(phoneNumber);
+        const otp = await firebaseAuth.generateOtp();
         if (!otp) {
-            return res.status(500).json({ error: 'Failed to send OTP' });
+            return res.status(500).json({ error: 'Failed to generate OTP' });
         }
         const user = { phoneNumber , token: uuidv4() , otp: otp };
         const userResponse = await firebaseAuth.createUserWithPhone('users', user);
