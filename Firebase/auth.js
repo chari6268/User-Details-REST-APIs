@@ -18,15 +18,20 @@ class FirebaseAuth {
         }
     }
     // verify the otp and return the user details
-    async verifyOtp(token) {
+    async verifyOtp(path, phoneNumber,otp) {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const userId = decoded.userId;
-            const user = await fetchDataById('users', userId);
-            if (!user) {
-                throw new Error('User not found');
+            const users = await fetchData(path);
+            const usersArray = Array.isArray(users) ?
+                users.filter(Boolean) :
+                Object.values(users || {}).filter(Boolean);
+            if (usersArray.find((u) => u.phoneNumber === phoneNumber)) {
+                const userDetails = usersArray.find((u) => u.phoneNumber === phoneNumber);
+                if (userDetails.otp === otp) {
+                    return { message: 'OTP verified successfully', user: userDetails };
+                } else {
+                    return { message: 'Invalid OTP' };
+                }
             }
-            return user;
         } catch (error) {
             console.error('Error verifying OTP:', error);
             throw new Error('Failed to verify OTP');

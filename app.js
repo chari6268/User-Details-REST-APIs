@@ -58,6 +58,82 @@ app.use((req, res, next) => {
     }
   });
 
+  app.post('/send-otp', async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+        const apiUrl = process.env.OTP_URL;
+        if (!apiUrl) {
+            return res.status(500).json({ error: 'API URL not configured' });
+        }
+        const fullApiUrl = `${apiUrl}?regno=${phoneNumber}`;
+        const response = await axios.get(fullApiUrl, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const otp = response.data;
+        if (!otp) {
+            return res.status(500).json({ error: 'Failed to generate OTP' });
+        }
+        const user = { phoneNumber , token: uuidv4() , otp: otp };
+        const userResponse = await firebaseAuth.createUserWithPhone('users', user);
+        if (userResponse.message) {
+          return res.status(400).json({ error: userResponse.message });
+        }
+        res.json({ message: 'OTP sent successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to send OTP!' });
+    }
+  });
+
+  app.post('/verify-otp', async (req, res) => {
+    try {
+        const { phoneNumber, otp, token} = req.body;
+        if (!phoneNumber || !otp) {
+            return res.status(400).json({ error: 'Phone number and OTP are required' });
+        }
+        const user = await firebaseAuth.verifyOtp('users',phoneNumber, otp);
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid OTP' });
+        }
+        user.token = token;
+        const userResponse = await firebaseAuth.createUserWithPhone('users', user);
+        if (userResponse.message) {
+          return res.status(400).json({ error: userResponse.message });
+        }
+        res.json({ message: 'OTP verified successfully'});
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to verify OTP!' });
+    }
+  });
+  app.post('/loginUser', async (req, res) => {
+    try {
+        const { phoneNumber,token} = req.body;
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+        const user = await firebaseAuth.getUserByPhone(phoneNumber);
+        if (user.token !== token) {
+            const oldToken = user.token;
+            user.token = token;
+            await firebaseAuth.createUserWithPhone('users', user);
+            console.log(`Token updated for user ${phoneNumber}. Old token: ${oldToken}, New token: ${token}`);
+        }else {
+            console.log(`Token is same for user ${phoneNumber}. Token: ${token}`);
+        }
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ message: 'User logged in successfully', user });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to login user!' });
+    }
+  });
+
   app.get('/student-details', async (req, res) => {
     try {
         const { regno } = req.body;
