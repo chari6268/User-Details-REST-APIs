@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const {fetchData, writeData, updateData, deleteData ,fetchDataById} = require('./firebaseDB');
 const { response } = require('express');
+const axios = require('axios');
 
 class FirebaseAuth {
     async createUserWithPhone(path, user) {
@@ -42,11 +43,32 @@ class FirebaseAuth {
     async getUserByPhone(phoneNumber) {
         try {
             const users = await fetchData('users');
-            const user = Object.values(users).find(user => user.phoneNumber === phoneNumber);
+            const usersArray = Array.isArray(users) ?
+                users.filter(Boolean) :
+                Object.values(users || {}).filter(Boolean);
+            const user = usersArray.find((u) => u.phoneNumber === phoneNumber);
             if (!user) {
-                throw new Error('User not found');
+                return { message: 'User not found' };
             }
-            return user;
+            // update user otp
+            const apiUrl = process.env.OTP_URL;
+            if (!apiUrl) {
+                return res.status(500).json({ error: 'API URL not configured' });
+            }
+            const fullApiUrl = `${apiUrl}?regno=${phoneNumber}`;
+            const response = await axios.get(fullApiUrl, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            const otp = response.data;
+            if (!otp) {
+                return res.status(500).json({ error: 'Failed to generate OTP' });
+            }
+            user.otp = otp;
+            await updateData('users', user, phoneNumber);
+            return { message: 'User retrieved successfully', response:true };
         } catch (error) {
             console.error('Error fetching user:', error);
             throw new Error('Failed to fetch user');

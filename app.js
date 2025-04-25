@@ -58,6 +58,22 @@ app.use((req, res, next) => {
     }
   });
 
+  app.get('/get-user', async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+        const user = await firebaseAuth.getUserByPhone(phoneNumber);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve user!' });
+    }
+  });
+
   app.post('/send-otp', async (req, res) => {
     try {
         const { phoneNumber } = req.body;
