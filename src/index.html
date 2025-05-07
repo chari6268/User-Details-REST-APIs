@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - User Stats</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .admin-panel {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 800px;
+        margin: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .admin-panel h1 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+    }
+    
+    thead {
+        background-color: #007bff;
+        color: white;
+    }
+    
+    th, td {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-panel">
+    <h1>Admin Panel - User Statistics</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Total View Count</th>
+          <th>Personal Reels Uploaded</th>
+        </tr>
+      </thead>
+      <tbody id="user-stats-body">
+        
+      </tbody>
+    </table>
+  </div>
+</body>
+<script>
+    async function fetchUserStats() {
+      try {
+        const response = await fetch('/allUsers');
+        if (!response.ok) {
+          throw new Error('Failed to fetch user stats');
+        }
+        const userStats = await response.json();
+        userStats.forEach(user => {
+          var username = user.email.substring(0, user.email.indexOf('@'));
+          try{
+            var url = `/allPosts/${username}/personal_reel`;
+            const postResponse = fetch(url, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            if (!postResponse.ok) {
+              throw new Error('Failed to fetch user stats');
+            }
+            const userPosts = postResponse.json();
+            const userStatsBody = document.getElementById('user-stats-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${postResponse.email}</td>
+              <td>${postResponse.id}</td>
+              <td>10</td>
+            `;
+          }catch (error) {
+            console.error('Error fetching user stats:', error);
+          }
+        });
+        // alert(userStats);
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      }
+    }
+    window.onload = fetchUserStats;
+  </script>
+</html>
