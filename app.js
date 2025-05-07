@@ -31,8 +31,8 @@ app.use((req, res, next) => {
     next();
   });
 
-  app.get('/admin', (req, res) => {
-    const filePath = __dirname + '/src/index.html'; // Correct the path to the file
+  app.get('/', (req, res) => {
+    const filePath = __dirname + '/src/index.html';
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ error: 'index.html not found' });
     }
@@ -40,7 +40,7 @@ app.use((req, res, next) => {
   });
   
   // Sample REST endpoints
-  app.get('/', (req, res) => {
+  app.get('/admin', (req, res) => {
     res.json({ message: 'Welcome to Screenova!'});
   });
 
