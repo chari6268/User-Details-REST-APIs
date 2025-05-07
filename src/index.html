@@ -56,8 +56,8 @@
       <thead>
         <tr>
           <th>User ID</th>
+          <th>Video ID</th>
           <th>Total View Count</th>
-          <th>Personal Reels Uploaded</th>
         </tr>
       </thead>
       <tbody id="user-stats-body">
@@ -74,11 +74,11 @@
           throw new Error('Failed to fetch user stats');
         }
         const userStats = await response.json();
-        userStats.forEach(user => {
+        userStats.forEach(async user => {
           var username = user.email.substring(0, user.email.indexOf('@'));
-          try{
+          try {
             var url = `/allPosts/${username}/personal_reel`;
-            const postResponse = fetch(url, {
+            const postResponse = await fetch(url, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -87,19 +87,21 @@
             if (!postResponse.ok) {
               throw new Error('Failed to fetch user stats');
             }
-            const userPosts = postResponse.json();
-            const userStatsBody = document.getElementById('user-stats-body');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${postResponse.email}</td>
-              <td>${postResponse.id}</td>
-              <td>10</td>
-            `;
-          }catch (error) {
+            const postData = await postResponse.json();
+            postData.forEach(post => {
+              const tableBody = document.getElementById('user-stats-body');
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${post.userId}</td>
+                <td>${post.id}</td>
+                <td>${post.viewCount}</td>
+              `;
+              tableBody.appendChild(row);
+            });
+          } catch (error) {
             console.error('Error fetching user stats:', error);
           }
         });
-        // alert(userStats);
       } catch (error) {
         console.error('Error fetching user stats:', error);
       }
