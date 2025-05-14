@@ -202,6 +202,26 @@ app.use((req, res, next) => {
     }
   });
 
+  app.get('/supercoins/:username/:type', async (req, res) => {
+    const { username, type } = req.params;
+    try {
+      const userStats = await adminAuth.getAllUsers(`Reports/${username}/${type}`);
+      let totalCoins = 0;
+      let numberOfPosts = 0;
+      userStats.forEach((dataSnapshot) => {
+        numberOfPosts++;
+        const coins = dataSnapshot.viewCount || 0;
+        totalCoins += coins;
+      });      
+      const supercoins = totalCoins * 0.1;
+      const averageViews = totalCoins / numberOfPosts;
+      res.json({ username, totalCoins , numberOfPosts , supercoins, averageViews });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+  });
+
   // WebSocket handling
 wss.on('connection', (ws) => {
     console.log('Client connected');
