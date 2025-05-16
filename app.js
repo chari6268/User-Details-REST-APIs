@@ -192,6 +192,26 @@ app.use((req, res, next) => {
     }
   });
 
+  app.get('/allUsers/:username', async (req, res) => {
+    const { username } = req.params;
+    try {
+      const userStats = await adminAuth.getAllUsers('Users');
+      const filteredUsers = userStats.filter(
+        user => {
+          const userName = user.email.split('@')[0];
+          return userName === username;
+        }
+      );
+      if (filteredUsers.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.json(filteredUsers);
+    } catch (error) {
+        console.error('Error in allUsers:', error);
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+  });
+
   app.get('/allPosts/:username/:type', async (req, res) => {
     const { username, type } = req.params;
     try {
