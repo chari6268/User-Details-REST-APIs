@@ -205,7 +205,7 @@ app.use((req, res, next) => {
       if (filteredUsers.length === 0) {
         return res.status(404).json({ error: 'User not found' });
       }
-      res.json(filteredUsers);
+      res.json(filteredUsers[0]);
     } catch (error) {
         console.error('Error in allUsers:', error);
         res.status(500).json({ error: 'Failed to fetch user stats' });
