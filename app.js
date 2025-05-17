@@ -212,6 +212,28 @@ app.use((req, res, next) => {
     }
   });
 
+  // followers
+  app.get('/followers/:username', async (req, res) => {
+    const { username } = req.params;
+    try {
+      const userStats = await adminAuth.getAllUsers(`user_followers/${username}`);
+      res.json(userStats);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+  });
+
+  app.get('/following/:username', async (req, res) => {
+    const { username } = req.params;
+    try {
+      const userStats = await adminAuth.getAllUsers(`user_follows/${username}`);
+      // in follow data in the form of "testing" is the user name  at the key value and "srinivaschari6268" is following user
+      res.json(userStats);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+  });
+
   app.get('/allPosts/:username/:type', async (req, res) => {
     const { username, type } = req.params;
     try {
