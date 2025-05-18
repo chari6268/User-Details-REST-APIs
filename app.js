@@ -58,6 +58,14 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bo
     }
     res.sendFile(filePath);
   });
+
+  app.get('/user', (req, res) => {
+    const filePath = __dirname + '/src/user.html';
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'user.html not found' });
+    }
+    res.sendFile(filePath);
+  });
   
   // Sample REST endpoints
   app.get('/admin', (req, res) => {
