@@ -339,9 +339,10 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
         res.status(500).json({ error: 'Failed to create news post' });
     }
 });
-app.get('/admin/news', async (req, res) => {
+app.get('/admin/news/:username', async (req, res) => {
+    const { username } = req.params;
     try {
-        const newsPosts = await fetchData('Reports/admin/');
+        const newsPosts = await fetchData(`Reports/${username}`);
         if (!newsPosts) {
             return res.status(404).json({ error: 'No news posts found' });
         }
