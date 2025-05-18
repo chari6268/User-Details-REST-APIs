@@ -50,6 +50,14 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bo
     }
     res.sendFile(filePath);
   });
+
+  app.get('/news', (req, res) => {
+    const filePath = __dirname + '/src/newsData.html';
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'newsData.html not found' });
+    }
+    res.sendFile(filePath);
+  });
   
   // Sample REST endpoints
   app.get('/admin', (req, res) => {
@@ -309,14 +317,82 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
             fileOriginalName: req.file.originalname,
             fileMimeType: req.file.mimetype,
             fileSize: req.file.size
-            // You can also save req.file.buffer if you want to store the file in DB or cloud
         };
-
-        // Respond success
+        
+        const newsPostId = userId.split('@')[0];
+        const newsPostPath = "News";
+        const newsPostData = {
+            ...newsPost,
+            fileData: req.file.buffer.toString('base64')
+        };
+        await writeData(newsPostPath, newsPostData,newsPostId);
         res.status(201).json({ message: 'News post created successfully', newsPost });
     } catch (error) {
         console.error('Error in /admin/news:', error);
         res.status(500).json({ error: 'Failed to create news post' });
+    }
+});
+app.get('/admin/news', async (req, res) => {
+    try {
+        const newsPosts = await fetchData('News');
+        if (!newsPosts) {
+            return res.status(404).json({ error: 'No news posts found' });
+        }
+        // Convert object to array for frontend compatibility
+        const newsArray = Array.isArray(newsPosts)
+            ? newsPosts
+            : Object.values(newsPosts);
+        res.json(newsArray);
+    } catch (error) {
+        console.error('Error in /admin/news:', error);
+        res.status(500).json({ error: 'Failed to fetch news posts' });
+    }
+});
+app.get('/admin/news/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const newsPost = await fetchDataById('News', id);
+        if (!newsPost) {
+            return res.status(404).json({ error: 'News post not found' });
+        }
+        res.json(newsPost);
+    } catch (error) {
+        console.error('Error in /admin/news/:id:', error);
+        res.status(500).json({ error: 'Failed to fetch news post' });
+    }
+});
+
+app.put('/admin/news/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { userId, headline, summary, source, category, language, type } = req.body;
+        if (!userId || !headline || !summary || !source || !category || !language || !type) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+        const newsPost = {
+            userId,
+            headline,
+            summary,
+            source,
+            category,
+            language,
+            type
+        };
+        await updateData('News', id, newsPost);
+        res.json({ message: 'News post updated successfully', newsPost });
+    } catch (error) {
+        console.error('Error in /admin/news/:id:', error);
+        res.status(500).json({ error: 'Failed to update news post' });
+    }
+});
+app.delete('/admin/news/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await deleteData('News', id);
+        res.json({ message: 'News post deleted successfully' });
+    } catch (error) {
+        console.error('Error in /admin/news/:id:', error);
+        res.status(500).json({ error: 'Failed to delete news post' });
     }
 });
 
