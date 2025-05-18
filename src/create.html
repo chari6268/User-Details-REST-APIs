@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Upload Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        input[type="file"] {
+            padding: 10px 0;
+        }
+        .media-preview {
+            margin-top: 10px;
+            max-width: 100%;
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload News Content</h1>
+        <form id="newsUploadForm">
+            <div class="form-group">
+                <label for="headline">Headline*</label>
+                <input type="text" id="headline" required>
+                <div class="error" id="headline-error">Please enter a headline</div>
+            </div>
+            <div class="form-group">
+                <label for="summary">Summary*</label>
+                <textarea id="summary" required></textarea>
+                <div class="error" id="summary-error">Please enter a summary</div>
+            </div>
+            <div class="form-group">
+                <label for="source">Source*</label>
+                <input type="text" id="source" required>
+                <div class="error" id="source-error">Please enter a source</div>
+            </div>
+            <div class="form-group">
+                <label for="category">Category*</label>
+                <select id="category" required>
+                    <option value="">Select a category</option>
+                    <option value="Politics">Politics</option>
+                    <option value="Business">Business</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Science">Science</option>
+                    <option value="Health">Health</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="World">World</option>
+                    <option value="Education">Education</option>
+                    <option value="Environment">Environment</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="error" id="category-error">Please select a category</div>
+            </div>
+            <div class="form-group">
+                <label for="language">Language*</label>
+                <select id="language" required>
+                    <option value="">Select a language</option>
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Telugu">Telugu</option>
+                    <option value="Tamil">Tamil</option>
+                    <option value="Kannada">Kannada</option>
+                    <option value="Malayalam">Malayalam</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Bengali">Bengali</option>
+                    <option value="Gujarati">Gujarati</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="error" id="language-error">Please select a language</div>
+            </div>
+            <div class="form-group">
+                <label for="postType">Post Type*</label>
+                <select id="postType" required>
+                    <option value="">Select post type</option>
+                    <option value="Breaking">Breaking News</option>
+                    <option value="Regular">Regular News</option>
+                    <option value="Feature">Feature Article</option>
+                    <option value="Opinion">Opinion Piece</option>
+                    <option value="Analysis">Analysis</option>
+                </select>
+                <div class="error" id="postType-error">Please select a post type</div>
+            </div>
+            <div class="form-group">
+                <label for="hashtags">Hashtags (comma separated)</label>
+                <input type="text" id="hashtags" placeholder="news, current, politics">
+            </div>
+            <div class="form-group">
+                <label for="userEmail">User Email*</label>
+                <input type="email" id="userEmail" required>
+                <div class="error" id="userEmail-error">Please enter a valid email</div>
+            </div>
+            <div class="form-group">
+                <label for="mediaFile">Media Upload (Image/Video)*</label>
+                <input type="file" id="mediaFile" accept="image/*,video/*" required>
+                <div class="error" id="mediaFile-error">Please select a media file</div>
+                <img id="imagePreview" class="media-preview" alt="Image preview">
+                <video id="videoPreview" class="media-preview" controls></video>
+            </div>
+            <button type="submit" id="submitButton">Upload News</button>
+        </form>
+        <div class="success-message" id="successMessage">
+            News content uploaded successfully!
+        </div>
+    </div>
+    <script>
+        // Polyfill for System.currentTimeMillis()
+        if (!window.System) {
+            window.System = {
+                currentTimeMillis: function() {
+                    return new Date().getTime();
+                }
+            };
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('newsUploadForm');
+            const mediaFile = document.getElementById('mediaFile');
+            const imagePreview = document.getElementById('imagePreview');
+            const videoPreview = document.getElementById('videoPreview');
+            const successMessage = document.getElementById('successMessage');
+            // Preview media file when selected
+            mediaFile.addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+                const fileType = file.type;
+                if (fileType.startsWith('image')) {
+                    imagePreview.style.display = 'block';
+                    videoPreview.style.display = 'none';
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (fileType.startsWith('video')) {
+                    videoPreview.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                    const url = URL.createObjectURL(file);
+                    videoPreview.src = url;
+                }
+            });
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Reset error messages
+                document.querySelectorAll('.error').forEach(el => {
+                    el.style.display = 'none';
+                });
+                // Validation
+                let isValid = true;
+                const headline = document.getElementById('headline').value;
+                if (!headline) {
+                    document.getElementById('headline-error').style.display = 'block';
+                    isValid = false;
+                }
+                const summary = document.getElementById('summary').value;
+                if (!summary) {
+                    document.getElementById('summary-error').style.display = 'block';
+                    isValid = false;
+                }
+                const source = document.getElementById('source').value;
+                if (!source) {
+                    document.getElementById('source-error').style.display = 'block';
+                    isValid = false;
+                }
+                const category = document.getElementById('category').value;
+                if (!category) {
+                    document.getElementById('category-error').style.display = 'block';
+                    isValid = false;
+                }
+                const language = document.getElementById('language').value;
+                if (!language) {
+                    document.getElementById('language-error').style.display = 'block';
+                    isValid = false;
+                }
+                const postType = document.getElementById('postType').value;
+                if (!postType) {
+                    document.getElementById('postType-error').style.display = 'block';
+                    isValid = false;
+                }
+                const userEmail = document.getElementById('userEmail').value;
+                if (!userEmail || !userEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    document.getElementById('userEmail-error').style.display = 'block';
+                    isValid = false;
+                }
+                const file = document.getElementById('mediaFile').files[0];
+                if (!file) {
+                    document.getElementById('mediaFile-error').style.display = 'block';
+                    isValid = false;
+                }
+                if (!isValid) return;
+                // Create form data
+                const formData = new FormData();
+                formData.append('userId', userEmail);
+                formData.append('mediaType', file.type.startsWith('image') ? 'image' : 'video');
+                formData.append('type', postType);
+                formData.append('headline', headline);
+                formData.append('summary', summary);
+                formData.append('source', source);
+                formData.append('category', category);
+                formData.append('language', language);
+                formData.append('hashtags', document.getElementById('hashtags').value);
+                formData.append('BlobData', file);
+                formData.append('viewCount', 0);
+                formData.append('timestamp', System.currentTimeMillis());
+                // Show loading state
+                const submitButton = document.getElementById('submitButton');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = 'Uploading...';
+                submitButton.disabled = true;
+                // Send data to the server
+                fetch('/admin/news', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    form.reset();
+                    imagePreview.style.display = 'none';
+                    videoPreview.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                })
+                .catch(error => {
+                    alert('There was an error uploading your news. Please try again later.');
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -7,7 +7,10 @@ const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs-extra');
 const axios = require('axios');
+const multer = require('multer');
+const upload = multer();
 require('dotenv').config();
+const {fetchData, writeData, updateData, deleteData ,fetchDataById} = require('./Firebase/firebaseDB');
 const { FirebaseAuth } = require('./Firebase/auth');
 const firebaseAuth = new FirebaseAuth();
 const {AdminAuth} = require('./Firebase/admin');
@@ -26,15 +29,24 @@ app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 // Simple logging middleware
-app.use((req, res, next) => {
+  app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     next();
   });
+  app.use(express.static(__dirname + '/src'));
 
   app.get('/', (req, res) => {
     const filePath = __dirname + '/src/index.html';
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ error: 'index.html not found' });
+    }
+    res.sendFile(filePath);
+  });
+
+  app.get('/create', (req, res) => {
+    const filePath = __dirname + '/src/create.html';
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'create.html not found' });
     }
     res.sendFile(filePath);
   });
@@ -269,6 +281,44 @@ app.use((req, res, next) => {
         res.status(500).json({ error: 'Failed to fetch user stats' });
     }
   });
+
+app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
+    try {
+        // Validate required fields
+        const { userId, headline, summary, source, category, language, type } = req.body;
+        if (!userId || !headline || !summary || !source || !category || !language || !type) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        // Example: Save news post (replace with your DB logic)
+        const newsPost = {
+            userId,
+            headline,
+            summary,
+            source,
+            category,
+            language,
+            type,
+            hashtags: req.body.hashtags,
+            viewCount: req.body.viewCount || 0,
+            timestamp: req.body.timestamp,
+            mediaType: req.body.mediaType,
+            fileOriginalName: req.file.originalname,
+            fileMimeType: req.file.mimetype,
+            fileSize: req.file.size
+            // You can also save req.file.buffer if you want to store the file in DB or cloud
+        };
+
+        // Respond success
+        res.status(201).json({ message: 'News post created successfully', newsPost });
+    } catch (error) {
+        console.error('Error in /admin/news:', error);
+        res.status(500).json({ error: 'Failed to create news post' });
+    }
+});
 
   // WebSocket handling
 wss.on('connection', (ws) => {
