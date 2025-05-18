@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -123,5 +123,73 @@ window.onload = () => {
     fetchNews();
 };
 </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Landing Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .landing-container {
+            max-width: 480px;
+            margin: 80px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+            padding: 40px 32px 32px 32px;
+            text-align: center;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 32px;
+            font-size: 2.2em;
+        }
+        .landing-links {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .landing-links a {
+            display: block;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 0;
+            border-radius: 7px;
+            font-size: 1.15em;
+            font-weight: 500;
+            transition: background 0.18s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .landing-links a:hover {
+            background: #0056b3;
+        }
+        .desc {
+            color: #555;
+            margin-bottom: 36px;
+            font-size: 1.08em;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <h1>Admin Dashboard</h1>
+        <div class="desc">
+            Welcome! Choose a section to manage users, view news data, or create news posts.
+        </div>
+        <div class="landing-links">
+            <a href="user.html">👤 User Management</a>
+            <a href="newsData.html">📰 News Data</a>
+            <a href="create.html">➕ Create News Post</a>
+        </div>
+    </div>
 </body>
 </html>
