@@ -327,13 +327,12 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
             fileSize: req.file.size
         };
         
-        const newsPostId = userId.split('@')[0];
-        const newsPostPath = "News";
+        const newsPostPath = `Reports/admin/`;
         const newsPostData = {
             ...newsPost,
             fileData: req.file.buffer.toString('base64')
         };
-        await writeData(newsPostPath, newsPostData,newsPostId);
+        await writeData(newsPostPath, newsPostData,uuidv4());
         res.status(201).json({ message: 'News post created successfully', newsPost });
     } catch (error) {
         console.error('Error in /admin/news:', error);
@@ -342,7 +341,7 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
 });
 app.get('/admin/news', async (req, res) => {
     try {
-        const newsPosts = await fetchData('News');
+        const newsPosts = await fetchData('Reports/admin/');
         if (!newsPosts) {
             return res.status(404).json({ error: 'No news posts found' });
         }
