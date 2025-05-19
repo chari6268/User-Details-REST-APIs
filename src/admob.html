@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ad Settings UI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: #fff;
+      border-top: 8px solid #1f3654;
+      border-radius: 5px;
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #1f3654;
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-switch input[type="checkbox"] {
+      display: none;
+    }
+
+    .slider {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      top: 2px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch input[type="checkbox"]:checked + .slider {
+      background-color: #34c759;
+    }
+
+    .toggle-switch input[type="checkbox"]:checked + .slider::before {
+      transform: translateX(20px);
+    }
+
+    .radio-group {
+      margin-bottom: 20px;
+    }
+
+    .field-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .field {
+      flex: 1 1 250px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #1f3654;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Android Ads Card -->
+  <div class="card">
+    <h3>Android Ads.</h3>
+    <div class="toggle-switch">
+      <label>In App Ads.</label>
+      <input type="checkbox" id="androidToggle" checked>
+      <label class="slider" for="androidToggle"></label>
+    </div>
+    <div class="radio-group">
+      <input type="radio" name="androidAdNetwork" id="androidAdMob" checked>
+      <label for="androidAdMob">Google AdMob</label>
+      <input type="radio" name="androidAdNetwork" id="androidUnity">
+      <label for="androidUnity">Unity Ads.</label>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label>google Rewarded Video Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/5224">
+      </div>
+      <div class="field">
+        <label>google Interstitial Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/1033">
+      </div>
+      <div class="field">
+        <label>google Banner Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/6300">
+      </div>
+      <div class="field">
+        <label>google Native Unit Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/2247">
+      </div>
+    </div>
+  </div>
+
+  <!-- iOS Ads Card -->
+  <div class="card">
+    <h3>IOS Ads.</h3>
+    <div class="toggle-switch">
+      <label>In App Ads.</label>
+      <input type="checkbox" id="iosToggle" checked>
+      <label class="slider" for="iosToggle"></label>
+    </div>
+    <div class="radio-group">
+      <input type="radio" name="iosAdNetwork" id="iosAdMob" checked>
+      <label for="iosAdMob">Google AdMob</label>
+      <input type="radio" name="iosAdNetwork" id="iosUnity">
+      <label for="iosUnity">Unity Ads.</label>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label>google Rewarded Video Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/1712">
+      </div>
+      <div class="field">
+        <label>google Interstitial Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/4411">
+      </div>
+      <div class="field">
+        <label>google Banner Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/2934">
+      </div>
+      <div class="field">
+        <label>google Native Unit Id</label>
+        <input type="text" value="ca-app-pub-3940256099942544/3986">
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
