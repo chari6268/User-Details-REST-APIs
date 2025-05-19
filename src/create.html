@@ -100,8 +100,11 @@
             </div>
             <div class="form-group">
                 <label for="summary">Summary*</label>
-                <textarea id="summary" required></textarea>
-                <div class="error" id="summary-error">Please enter a summary</div>
+                <textarea id="summary" required maxlength="300"></textarea>
+                <div style="display: flex; justify-content: space-between;">
+                    <div class="error" id="summary-error">Please enter a summary</div>
+                    <div id="summary-char-count" style="font-size:13px; color:#888;">0 / 300</div>
+                </div>
             </div>
             <div class="form-group" style="display: none;">
                 <label for="source">Source*</label>
@@ -308,6 +311,18 @@
                     submitButton.textContent = originalButtonText;
                     submitButton.disabled = false;
                 });
+            });
+            // Character count for summary
+            const summaryInput = document.getElementById('summary');
+            const summaryCharCount = document.getElementById('summary-char-count');
+            summaryInput.addEventListener('input', function() {
+                const remaining = 300 - this.value.length;
+                summaryCharCount.textContent = `${remaining} / 300`;
+            });
+            const summary = document.getElementById('summary');
+            const charCount = document.getElementById('summary-char-count');
+            summary.addEventListener('input', function() {
+                charCount.textContent = `${summary.value.length} / 300`;
             });
         });
     </script>
