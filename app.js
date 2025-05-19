@@ -342,11 +342,10 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
 app.get('/admin/news/:username', async (req, res) => {
     const { username } = req.params;
     try {
-        const newsPosts = await fetchData(`Reports/${username}`);
+        const newsPosts = await fetchData(`Reports/${username}/news_card`);
         if (!newsPosts) {
             return res.status(404).json({ error: 'No news posts found' });
         }
-        // Convert object to array for frontend compatibility
         const newsArray = Array.isArray(newsPosts)
             ? newsPosts
             : Object.values(newsPosts);
