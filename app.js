@@ -330,7 +330,7 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
         const newsPostPath = `Reports/admin/news_card`;
         const newsPostData = {
             ...newsPost,
-            fileData: req.file.buffer.toString('base64')
+            BlobData: req.file.buffer.toString('base64')
         };
         await writeData(newsPostPath, newsPostData,uuidv4());
         res.status(201).json({ message: 'News post created successfully', newsPost });
