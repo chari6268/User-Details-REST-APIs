@@ -103,9 +103,9 @@
                 <textarea id="summary" required></textarea>
                 <div class="error" id="summary-error">Please enter a summary</div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="source">Source*</label>
-                <input type="text" id="source" required>
+                <input type="text" id="source" required value="Default Source">
                 <div class="error" id="source-error">Please enter a source</div>
             </div>
             <div class="form-group">
@@ -159,9 +159,9 @@
                 <label for="hashtags">Hashtags (comma separated)</label>
                 <input type="text" id="hashtags" placeholder="news, current, politics">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="userEmail">User Email*</label>
-                <input type="email" id="userEmail" required>
+                <input type="email" id="userEmail" required value="example@example.com">
                 <div class="error" id="userEmail-error">Please enter a valid email</div>
             </div>
             <div class="form-group">

@@ -327,7 +327,7 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
             fileSize: req.file.size
         };
         
-        const newsPostPath = `Reports/admin/`;
+        const newsPostPath = `Reports/admin/news_card`;
         const newsPostData = {
             ...newsPost,
             fileData: req.file.buffer.toString('base64')
