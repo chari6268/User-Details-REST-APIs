@@ -420,7 +420,7 @@
                     if (post.fileData && post.fileMimeType) {
                         if (post.mediaType === 'image') {
                             const img = document.createElement('img');
-                            img.src = `data:${post.fileMimeType};base64,${post.fileData}`;
+                            img.src = `data:${post.fileMimeType};base64,${post.BlobData}`;
                             img.style.maxWidth = '120px';
                             img.style.maxHeight = '80px';
                             img.className = 'media-thumb';
@@ -434,7 +434,7 @@
                             mediaCell.appendChild(img);
                         } else if (post.mediaType === 'video') {
                             const video = document.createElement('video');
-                            video.src = `data:${post.fileMimeType};base64,${post.fileData}`;
+                            video.src = `data:${post.fileMimeType};base64,${post.BlobData}`;
                             video.controls = true;
                             video.style.maxWidth = '120px';
                             video.style.maxHeight = '80px';
