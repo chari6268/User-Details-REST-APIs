@@ -355,6 +355,50 @@ app.get('/admin/news/:username', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch news posts' });
     }
 });
+
+app.get('/admin/reels', async (req, res) => {
+    try {
+        const reportsSnapshot = await fetchData('Reports');
+
+        if (!reportsSnapshot) {
+            return res.status(404).json({ error: 'No reels available' });
+        }
+
+        const allReels = [];
+
+        for (const [username, userData] of Object.entries(reportsSnapshot)) {
+            const personalReels = userData.personal_reel;
+            if (personalReels) {
+                for (const [postId, post] of Object.entries(personalReels)) {
+                    const videoId = post.id || '';
+                    const userId = post.userId || '';
+                    const headline = post.headline || '';
+                    const hashtags = post.hashtags || '';
+                    const caption = `${headline}${hashtags ? '\n' + hashtags : ''}`;
+                    const videoUrl = post.BlobData || '';
+                    const viewCount = post.viewCount || 0;
+
+                    if (userId && videoUrl && videoId) {
+                        allReels.push({
+                            videoId,
+                            userId,
+                            caption,
+                            videoUrl,
+                            viewCount
+                        });
+                    }
+                }
+            }
+        }
+
+        res.json(allReels);
+    } catch (error) {
+        console.error('Error fetching reels:', error);
+        res.status(500).json({ error: 'Failed to load reels' });
+    }
+});
+
+
 app.get('/admin/news/:id', async (req, res) => {
     const { id } = req.params;
     try {
