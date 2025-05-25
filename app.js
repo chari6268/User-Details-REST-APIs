@@ -398,6 +398,43 @@ app.get('/admin/reels', async (req, res) => {
     }
 });
 
+app.get('/admin/reels/:username', async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const userReels = await fetchData(`Reports/${username}/personal_reel`);
+        
+        if (!userReels) {
+            return res.status(404).json({ error: 'No reels found' });
+        }
+
+        // Convert object to array if needed
+        const reelsArray = Object.values(userReels).map(reel => {
+            const videoId = reel.id || '';
+            const userId = reel.userId || '';
+            const headline = reel.headline || '';
+            const hashtags = reel.hashtags || '';
+            const caption = `${headline}${hashtags ? '\n' + hashtags : ''}`;
+            const videoUrl = reel.BlobData || '';
+            const viewCount = reel.viewCount || 0;
+
+            return {
+                videoId,
+                userId,
+                caption,
+                videoUrl,
+                viewCount
+            };
+        });
+
+        res.json(reelsArray);
+    } catch (error) {
+        console.error('Error in /admin/reels/:username:', error);
+        res.status(500).json({ error: 'Failed to fetch reel posts' });
+    }
+});
+
+
 
 app.get('/admin/news/:id', async (req, res) => {
     const { id } = req.params;
