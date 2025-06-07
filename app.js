@@ -298,6 +298,8 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bo
     }
   });
 
+const clients = new Set();
+
 app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
     try {
         // Validate required fields
@@ -332,8 +334,14 @@ app.post('/admin/news', upload.single('BlobData'), async (req, res) => {
             ...newsPost,
             BlobData: req.file.buffer.toString('base64')
         };
-        await writeData(newsPostPath, newsPostData,uuidv4());
+        await writeData(newsPostPath, newsPostData, uuidv4());
         res.status(201).json({ message: 'News post created successfully', newsPost });
+
+        // Broadcast to all connected clients
+        broadcastToClients({
+            type: 'news_created',
+            newsPost
+        });
     } catch (error) {
         console.error('Error in /admin/news:', error);
         res.status(500).json({ error: 'Failed to create news post' });
@@ -478,6 +486,12 @@ app.delete('/admin/news/:id', async (req, res) => {
     try {
         await deleteData('News', id);
         res.json({ message: 'News post deleted successfully' });
+
+        // Broadcast to all connected clients
+        broadcastToClients({
+            type: 'news_deleted',
+            newsId: id
+        });
     } catch (error) {
         console.error('Error in /admin/news/:id:', error);
         res.status(500).json({ error: 'Failed to delete news post' });
@@ -487,24 +501,24 @@ app.delete('/admin/news/:id', async (req, res) => {
   // WebSocket handling
 wss.on('connection', (ws) => {
     console.log('Client connected');
-    
     // Assign a unique ID to this connection
     const clientId = uuidv4();
     ws.id = clientId;
-    
+    clients.add(ws);
+
     // Send welcome message
     ws.send(JSON.stringify({
       type: 'connection',
       message: 'Connected to server',
       clientId
     }));
-    
+
     // Handle incoming messages
     ws.on('message', (message) => {
       try {
         const data = JSON.parse(message);
         console.log(`Received message from ${clientId}:`, data);
-        
+
         // Echo the message back
         ws.send(JSON.stringify({
           type: 'echo',
@@ -519,14 +533,25 @@ wss.on('connection', (ws) => {
         }));
       }
     });
-    
+
     // Handle disconnection
     ws.on('close', () => {
+      clients.delete(ws);
       console.log(`Client ${clientId} disconnected`);
     });
-  });
-  
-  // Error handling middleware
+});
+
+// --- Helper function to broadcast to all clients ---
+function broadcastToClients(data) {
+    const message = JSON.stringify(data);
+    clients.forEach(client => {
+        if (client.readyState === 1) { // 1 = OPEN
+            client.send(message);
+        }
+    });
+}
+
+// Error handling middleware
   app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({ error: 'Internal server error' });
