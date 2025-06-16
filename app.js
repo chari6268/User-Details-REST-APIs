@@ -416,7 +416,6 @@ app.get('/admin/reels/:username', async (req, res) => {
             return res.status(404).json({ error: 'No reels found' });
         }
 
-        // Convert object to array if needed
         const reelsArray = Object.values(userReels).map(reel => {
             const videoId = reel.id || '';
             const userId = reel.userId || '';
@@ -441,8 +440,6 @@ app.get('/admin/reels/:username', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch reel posts' });
     }
 });
-
-
 
 app.get('/admin/news/:id', async (req, res) => {
     const { id } = req.params;
@@ -487,7 +484,6 @@ app.delete('/admin/news/:id', async (req, res) => {
         await deleteData('News', id);
         res.json({ message: 'News post deleted successfully' });
 
-        // Broadcast to all connected clients
         broadcastToClients({
             type: 'news_deleted',
             newsId: id
@@ -498,28 +494,23 @@ app.delete('/admin/news/:id', async (req, res) => {
     }
 });
 
-  // WebSocket handling
 wss.on('connection', (ws) => {
     console.log('Client connected');
-    // Assign a unique ID to this connection
     const clientId = uuidv4();
     ws.id = clientId;
     clients.add(ws);
 
-    // Send welcome message
     ws.send(JSON.stringify({
       type: 'connection',
       message: 'Connected to server',
       clientId
     }));
 
-    // Handle incoming messages
     ws.on('message', (message) => {
       try {
         const data = JSON.parse(message);
         console.log(`Received message from ${clientId}:`, data);
 
-        // Echo the message back
         ws.send(JSON.stringify({
           type: 'echo',
           originalMessage: data,
@@ -534,35 +525,30 @@ wss.on('connection', (ws) => {
       }
     });
 
-    // Handle disconnection
     ws.on('close', () => {
       clients.delete(ws);
       console.log(`Client ${clientId} disconnected`);
     });
 });
 
-// --- Helper function to broadcast to all clients ---
 function broadcastToClients(data) {
     const message = JSON.stringify(data);
     clients.forEach(client => {
-        if (client.readyState === 1) { // 1 = OPEN
+        if (client.readyState === 1) {
             client.send(message);
         }
     });
 }
 
-// Error handling middleware
   app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({ error: 'Internal server error' });
   });
   
-  // Handle 404 errors
   app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
   });
   
-  // Start the server
   server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
