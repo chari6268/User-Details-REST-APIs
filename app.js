@@ -364,6 +364,31 @@ app.get('/admin/news/:username', async (req, res) => {
     }
 });
 
+app.get('/admin/news/:username/:limit/:offset', async (req, res) => {
+    const { username, limit = 10, offset = 0 } = req.params;
+    try {
+        const newsSnapshot = await fetchData(`Reports/${username}/news_card`);
+        if (!newsSnapshot) {
+            return res.status(404).json({ error: 'No news posts available' });
+        }
+        const newsArray = Array.isArray(newsSnapshot)
+            ? newsSnapshot
+            : Object.values(newsSnapshot);
+
+        const paginatedNews = newsArray.slice(offset, offset + limit);
+        
+        res.json({
+            news: paginatedNews,
+            total: newsArray.length,
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ error: 'Failed to load news' });
+    }
+});
+
 app.get('/admin/reels', async (req, res) => {
     try {
         const reportsSnapshot = await fetchData('Reports');
